@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hampton Roads Parks Locator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/styles.css"> 
+    
+</head>
+
+<body>
+    
+    <div class="container">
+    
+        <div class="jumbotron text-center">
+            <h1>Welcome to the Parks Search</h1>
+            <p>Type in Newport News or Hampton to search for available parks in each city</p>
+            <form action="/results" method="post">
+                <input type="text" name="search_word" class="form-control" placeholder="Type to search....">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+            <form action="/filter" method="post">
+                <label for="column">Filter</label>
+                <select name="filter_column" id="columnSelected" onchange="filterParks()">
+                    <option value="">None</option>
+                    <option value="dogpark">Dog Park</option>
+                    <option value="beach">Beach</option>
+                    <option value="boatramp">Boat Ramp</option>
+                </select>
+                <select name="filter_value" id="valueSelected" class="valueSelectedFilter">
+                    <option value="">Select Value</option>
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                </select>
+                
+            </form>
+            
+
+            {% if parks %}
+                <h2 class="table-default">Results:</h2>
+                <table class="table table-striped table-hover" border="2" id="parksTable">
+                    {%for park in parks %}
+                        <tr>
+                                <td >{{ park.location }}</td>
+                                <td class="hidden-col">{{ park.dogpark }}</td>
+                                <td class="hidden-col">{{ park.beach }}</td>
+                                <td class="hidden-col">{{ park.boatramp }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            
+            {% elif search_word%}
+                <p>No results found for "{{search_word}}".</p>
+            {% endif %}
+            
+        
+        </div>
+    
+    </div>
+<footer>
+    <div class="text-center ">
+        
+    </div>
+</footer>
+
+<script> 
+function filterParks() {
+    const filterColumn = document.getElementById("columnSelected").value; 
+    const filterValue = document.getElementById("valueSelected").value.toLowerCase(); 
+    const parksTableRows = document.querySelectorAll("#parksTable tr");
+
+    console.log("Filtering by:", filterColumn, filterValue);    
+
+    //if (index === 0) return; // Skip header row
+
+    // Map filterColumn to the correct index in the table
+    const columnIndex = {
+        dogpark: 1,
+        beach: 2,
+        boatramp: 3
+    };
+
+    const filterIndex = columnIndex[filterColumn];
+
+
+    parksTableRows.forEach((row, i) => {  
+        const cell = row.cells[filterIndex];  
+        
+        if (!cell) {
+            console.log('Row ${i} does not have a cell at index ${filterIndex}');
+            
+            row.style.display = "none"; // Hide rows that do not match the filter
+            return;
+        }
+    
+        const text = cell.textContent.trim().toLowerCase();
+        const show = text === filterValue;
+        console.log(`Row ${i} - Cell Text: ${text}, Show: ${show}`);
+        row.style.display = show ? "" : "none"; // Show or hide the row based on the filter
+    });
+    // Add event listener to the filter form automatically
+    
+
+}
+document.getElementById("columnSelected").addEventListener("change", filterParks);
+document.getElementById("valueSelected").addEventListener("change", filterParks);
+</script>
+
+</body>
+</html>
+
+
